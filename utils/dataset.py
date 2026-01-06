@@ -6,44 +6,33 @@ from PIL import Image
 import albumentations as A
 
 
-SOURCE = r"D:\kaggle\tuberculosis-tb-chest-xray-dataset\TB_Chest_Radiography_Database"
+ORIGINAL_SOURCE = r"D:\kaggle\tuberculosis-tb-chest-xray-dataset\TB_Chest_Radiography_Database"
+REFORMED_SOURCE = r"D:\reformedsource"
 DESTINATION = r"D:\DestinationFolder"
 
 classes = ["Normal", "Tuberculosis"]
-split_ratio = 0.8
-
-
-os.makedirs(os.path.join(DESTINATION, "train"), exist_ok=True)
-os.makedirs(os.path.join(DESTINATION, "val"), exist_ok=True)
+TARGET_INITIAL = 700
+TARGET_AUGMENTED = 1500
+SPLIT_RATIO = 0.8
 
 for cls in classes:
-    os.makedirs(os.path.join(DESTINATION, "train", cls), exist_ok=True)
-    os.makedirs(os.path.join(DESTINATION, "val", cls), exist_ok=True)
+    os.makedirs(os.path.join(REFORMED_SOURCE, cls), exist_ok=True)
 
 
 for cls in classes:
-    src_folder = os.path.join(SOURCE, cls)
-    images = os.listdir(src_folder)
+    src_cls = os.path.join(ORIGINAL_SOURCE, cls)
+    dst_cls = os.path.join(REFORMED_SOURCE, cls)
+
+    images = os.listdir(src_cls)
     random.shuffle(images)
 
-    split_index = int(len(images) * split_ratio)
-    train_images = images[:split_index]
-    val_images = images[split_index:]
+    if cls == "Normal":
+        images = images[:TARGET_INITIAL]  
 
+    for img in images:
+        shutil.copy(os.path.join(src_cls, img), dst_cls)
 
-    for img in train_images:
-        shutil.copy(
-            os.path.join(src_folder, img),
-            os.path.join(DESTINATION, "train", cls)
-        )
-
-    for img in val_images:
-        shutil.copy(
-            os.path.join(src_folder, img),
-            os.path.join(DESTINATION, "val", cls)
-        )
-
-augment_transformer = A.Compose([
+augmenter = A.Compose([
     A.OneOf([
         A.Blur(p=1),
         A.HorizontalFlip(p=1),
@@ -52,48 +41,67 @@ augment_transformer = A.Compose([
     ], p=1)
 ])
 
-
-train_counts = {
-    cls: len(os.listdir(os.path.join(DESTINATION, "train", cls)))
-    for cls in classes
-}
-
-max_count = max(train_counts.values())
-
 for cls in classes:
-    train_dir = os.path.join(DESTINATION, "train", cls)
-    images = os.listdir(train_dir)
+    cls_dir = os.path.join(REFORMED_SOURCE, cls)
+    images = os.listdir(cls_dir)
 
-    needed = max_count - len(images)
-    if needed <= 0:
-        continue  # majority class
-
-    print(f"Augmenting {cls}: adding {needed} images")
+    needed = TARGET_AUGMENTED - len(images)
 
     for i in range(needed):
         img_name = random.choice(images)
-        img_path = os.path.join(train_dir, img_name)
+        img_path = os.path.join(cls_dir, img_name)
 
         img = np.array(Image.open(img_path))
-        augmented = augment_transformer(image=img)
-        aug_img = augmented["image"]
-
-        aug_pil = Image.fromarray(aug_img)
+        aug = augmenter(image=img)["image"]
+        aug_pil = Image.fromarray(aug)
 
         name, ext = os.path.splitext(img_name)
-        new_name = f"{name}_bal_{i}{ext}"
+        new_name = f"{name}_aug_{i}{ext}"
 
+        aug_pil.save(os.path.join(cls_dir, new_name))
 
-        aug_pil.save(os.path.join(train_dir, new_name))
+for split in ["train", "val"]:
+    for cls in classes:
+        os.makedirs(os.path.join(DESTINATION, split, cls), exist_ok=True)
 
+def cap_images(folder, max_count):
+    images = os.listdir(folder)
+    random.shuffle(images)
+    for img in images[max_count:]:
+        os.remove(os.path.join(folder, img))
+cap_images(r"D:\reformedsource\Normal", 1500)
+cap_images(r"D:\reformedsource\Tuberculosis", 1500)
 
-print("\nFinal training image counts:")
 for cls in classes:
-    count = len(os.listdir(os.path.join(DESTINATION, "train", cls)))
-    print(f"{cls}: {count}")
+    cls_src = os.path.join(REFORMED_SOURCE, cls)
+    images = os.listdir(cls_src)
+    random.shuffle(images)
 
-print("\nValidation image counts (unchanged):")
-for cls in classes:
-    count = len(os.listdir(os.path.join(DESTINATION, "val", cls)))
-    print(f"{cls}: {count}")
+    split_idx = int(len(images) * SPLIT_RATIO)
 
+    train_imgs = images[:split_idx]      # 1200
+    val_imgs = images[split_idx:]         # 300
+
+    for img in train_imgs:
+        shutil.copy(
+            os.path.join(cls_src, img),
+            os.path.join(DESTINATION, "train", cls)
+        )
+
+    for img in val_imgs:
+        shutil.copy(
+            os.path.join(cls_src, img),
+            os.path.join(DESTINATION, "val", cls)
+        )
+
+
+print("\nFINAL DATASET COUNTS:\n")
+
+print("Normal:", len(os.listdir(r"D:\reformedsource\Normal")))
+print("TB:", len(os.listdir(r"D:\reformedsource\Tuberculosis")))
+
+for split in ["train", "val"]:
+    print(split.upper())
+    for cls in classes:
+        count = len(os.listdir(os.path.join(DESTINATION, split, cls)))
+        print(f"  {cls}: {count}")
