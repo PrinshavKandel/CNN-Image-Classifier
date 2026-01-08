@@ -1,55 +1,84 @@
 <!DOCTYPE html>
-<html>    
-
+<html lang="en">
 <head>
-    <title>TB Detection</title>
-    <link rel="stylesheet" href="../static/css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TB Detection using CNN</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
-
 <body>
-    <h1>TB Detection using CNN</h1>
     <div class="container">
-        <div class="left">
-            <h3>Image for TB Detection</h3>
-            <img src="../images/placeholder.png">
-            <button onclick="uploadButton()">Upload Image</button>
-            <button onclick="predictButton()">Predict</button>
-        </div>
-        <div class="mid">
-            <div class="top-mid">
-                <h3>Prediction Result</h3>
-                <p id="prediction">Prediction: </p>
-                <p id="accuracy">Accuracy: </p>
-                <p id="precision">Precision: </p>
-                <p id="recall">Recall: </p>
-                <p id="f1score">F1-Score: </p>
+        <h1>TB Detection using CNN</h1>
+        
+        <div class="main-content">
+            <!-- this is for the image upload panel-->
+            <div class="panel image-panel">
+                <h2>Image for TB Detection</h2>
+                <div class="image-container">
+                    <img id="preview-image" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='340' height='450'%3E%3Crect fill='%231a1a1a' width='340' height='450'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23666' font-family='Arial' font-size='18'%3ENo Image Uploaded%3C/text%3E%3C/svg%3E" alt="X-Ray Image">
+                </div>
+                <div class="button-group">
+                    <label for="file-input" class="btn">Upload Image</label>
+                    <input type="file" id="file-input" accept="image/*" style="display: none;">
+                    <button id="predict-btn" class="btn" disabled>Predict</button>
+                </div>
             </div>
-            <div class="bottom-mid">
+
+            <!-- results and stuff -->
+            <div class="panel results-panel">
+                <h2>Prediction Result</h2>
+                <div class="metrics">
+                    <div class="metric-item">
+                        <span class="metric-label">Prediction:</span>
+                        <span class="metric-value" id="prediction"></span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Accuracy:</span>
+                        <span class="metric-value" id="accuracy"></span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Precision:</span>
+                        <span class="metric-value" id="precision"></span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">Recall:</span>
+                        <span class="metric-value" id="recall"></span>
+                    </div>
+                    <div class="metric-item">
+                        <span class="metric-label">F1-Score:</span>
+                        <span class="metric-value" id="f1-score"></span>
+                    </div>
+                </div>
+
                 <h3>Graphs</h3>
-                <div class="graph active">
-                    <img src="../images/graph_placeholder.jpg">
-                    <p>Graph 1</p>
+                <div class="graph-container">
+                    <canvas id="results-chart"></canvas>
                 </div>
-                <div class="graph">
-                    <img src="../images/graph_placeholder.jpg">
-                    <p>Graph 2</p>
-                </div>
-                <div class="graph">
-                    <img src="../images/graph_placeholder.jpg">
-                    <p>Graph 3</p>
-                </div>
-                <div class="graph-nav">
-                    <button onclick="prevGraph()">Previous</button>
-                    <button onclick="nextGraph()">Next</button>
+                <p class="graph-label">Graph 1</p>
+                <div class="graph-navigation">
+                    <button class="nav-btn" id="prev-graph">Previous</button>
+                    <button class="nav-btn" id="next-graph">Next</button>
                 </div>
             </div>
-        </div>
-        <div class="right">
-            <h3>Probability Gauge Meter</h3>
-            <canvas id="probabilityGauge"></canvas>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Rerum possimus ut omnis impedit, doloribus molestias iusto veritatis consectetur, ducimus facilis dolor quae deleniti? Delectus amet, eveniet porro totam magni ipsum?</p>
+
+            <!-- Probability Gauge -->
+            <div class="panel gauge-panel">
+                <h2>Probability Gauge Meter</h2>
+                <div class="gauge-container">
+                    <canvas id="gauge-canvas"></canvas>
+                </div>
+                <p class="gauge-description">
+                    gauge description is here
+                </p>
+            </div>
         </div>
     </div>
-    <script src="../static/js/index.js"></script>
+
+    <div class="loading-overlay" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
