@@ -1,77 +1,301 @@
+/* --- Global Variables and Reset --- */
+:root {
+    --bg-color: #121212; /* background */
+    --panel-bg: #1e1e1e; /*  panel background */
+    --primary-color: #007bff; /*  accents and buttons */
+    --text-color: #e0e0e0; /* Light text */
+    --secondary-text: #b0b0b0; /* Subdued text */
+    --border-color: #333333;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
 body {
-    margin: 1%;
-    font-family: Arial, sans-serif;
-    height: 100vh;
-    text-align: center;
-    overflow: hidden;
-}
-
-.container {
-    display: flex;
-}
-
-.left, .mid, .right{
+    font-family: var(--font-family);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
+    min-height: 100vh;
     padding: 20px;
-    border: 1px solid #000;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align content to the top */
 }
 
-.left {
-    width: 25%;
+/* --- Main Container and Header --- */
+.container {
+    width: 100%;
+    max-width: 1300px;
+    padding: 0;
+}
+
+h1 {
     text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 30px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 2.5em;
 }
 
-.mid {
-    width: 55%;
+/* --- Main Content Layout (Flexbox Grid) --- */
+.main-content {
+    display: flex;
+    flex-wrap: wrap; /* Allows panels to stack on smaller screens */
+    gap: 20px;
+}
+
+.panel {
+    background-color: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    flex-grow: 1;
+    min-height: 600px; /* Ensures consistent panel height */
     display: flex;
     flex-direction: column;
 }
 
-.top-mid {
-    border-bottom: 1px solid #000;
-    text-align: left;
-}
-
-.bottom-mid {
-    text-align: left;
-}
-
-.graph {
-    display: none;
+.panel h2 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    font-size: 1.5em;
     text-align: center;
 }
 
-.graph.active {
-    display: block;
+/* Panel Widths (Desktop) */
+.image-panel {
+    flex-basis: 300px; /* Fixed width for image panel */
+    flex-shrink: 0;
 }
 
-.graph-nav {
-    text-align: center;
+.results-panel {
+    flex-basis: 0; /* Allows it to take up the remaining main space */
+    flex-grow: 2;
+    max-width: 600px;
+    margin: 0 auto; /* Center the middle panel when space allows */
 }
 
-.right {
-    width: 20%;
-    text-align: center;
+.gauge-panel {
+    flex-basis: 300px; /* Fixed width for gauge panel */
+    flex-shrink: 0;
 }
 
-.left img {
+
+/* --- Image Panel Styles --- */
+.image-container {
     width: 100%;
-    height: auto;
+   
+    padding-top: 133%; /* 450/340 * 100% = 132.35% for a 3:4 container */
+    position: relative;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    margin-bottom: 20px;
 }
 
-.graph img {
+#preview-image {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
-    height: 280px;
+    height: 100%;
+    object-fit: cover; /* Ensures image fills container */
+    border-radius: 5px;
 }
 
-button {
-    margin: 5px;
-    padding: 10px 20px;
-    font-size: 16px;
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: auto; /* Pushes button group to the bottom of the panel */
+}
+
+.btn {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    text-align: center;
+    transition: background-color 0.3s, transform 0.1s;
+    flex-grow: 1;
+    display: inline-block; /* For the label element */
 }
 
-#probabilityGauge {
+.btn:hover:not(:disabled) {
+    background-color: #0056b3;
+}
+
+.btn:disabled {
+    background-color: var(--secondary-text);
+    cursor: not-allowed;
+}
+
+/* --- Results Panel Styles (Metrics) --- */
+.results-panel h3 {
+    color: var(--secondary-text);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    font-size: 1.3em;
+}
+
+.metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.metric-item {
+    background-color: #2a2a2a;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.metric-label {
+    display: block;
+    font-size: 0.9em;
+    color: var(--secondary-text);
+    margin-bottom: 5px;
+}
+
+.metric-value {
+    display: block;
+    font-size: 1.2em;
+    font-weight: bold;
+}
+
+/* Specific styling for prediction result */
+#prediction {
+    font-size: 1.5em;
+    color: var(--text-color); /* Neutral default */
+}
+
+/* Classes to be added by JS based on prediction */
+.metric-value.positive {
+    color: var(--danger-color); /* Assuming TB Positive  */
+}
+.metric-value.negative {
+    color: var(--success-color); /* Assuming TB Negative  */
+}
+
+/* Graph Styles */
+.graph-container {
+    height: 300px;
     width: 100%;
-    height: auto;
-    border: 1px solid #000;
+    margin-bottom: 15px;
+}
+
+.graph-label {
+    text-align: center;
+    font-size: 0.9em;
+    color: var(--secondary-text);
+    margin-bottom: 10px;
+}
+
+.graph-navigation {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: auto; /* Pushes navigation to the bottom */
+}
+
+.nav-btn {
+    background: none;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.nav-btn:hover {
+    background-color: rgba(0, 123, 255, 0.1);
+}
+
+/* --- Gauge Panel Styles --- */
+.gauge-panel {
+    align-items: center;
+}
+
+.gauge-container {
+    width: 100%;
+    max-width: 250px;
+    margin: 20px 0;
+}
+
+.gauge-description {
+    text-align: center;
+    font-size: 0.9em;
+    color: var(--secondary-text);
+    margin-top: auto; /* Pushes description to the bottom */
+    padding-top: 20px;
+    border-top: 1px dashed var(--border-color);
+}
+
+/* --- Loading Overlay --- */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: none; /* Controlled by JavaScript */
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.spinner {
+    border: 8px solid var(--border-color);
+    border-top: 8px solid var(--primary-color);
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 1000px) {
+    .main-content {
+        flex-direction: column; /* Stack all panels vertically */
+    }
+
+    .panel {
+        width: 100%;
+        max-width: none;
+        min-height: auto;
+    }
+
+    .image-panel, .gauge-panel {
+        flex-basis: auto;
+        flex-shrink: 1;
+    }
+
+    .results-panel {
+        max-width: none;
+        margin: 0;
+    }
 }
