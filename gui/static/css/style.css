@@ -1,77 +1,397 @@
-body {
-    margin: 1%;
-    font-family: Arial, sans-serif;
-    height: 100vh;
-    text-align: center;
+/* --- Global Variables and Reset --- */
+:root {
+    --bg-color: #121212;
+    --panel-bg: #1e1e1e;
+    --primary-color: #007bff;
+    --text-color: #e0e0e0;
+    --secondary-text: #b0b0b0;
+    --border-color: #333333;
+    --success-color: #28a745;
+    --danger-color: #dc3545;
+    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
     overflow: hidden;
 }
 
-.container {
-    display: flex;
-}
-
-.left, .mid, .right{
-    padding: 20px;
-    border: 1px solid #000;
-}
-
-.left {
-    width: 25%;
-    text-align: center;
-}
-
-.mid {
-    width: 55%;
+body {
+    font-family: var(--font-family);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    line-height: 1.6;
     display: flex;
     flex-direction: column;
 }
 
-.top-mid {
-    border-bottom: 1px solid #000;
-    text-align: left;
-}
-
-.bottom-mid {
-    text-align: left;
-}
-
-.graph {
-    display: none;
-    text-align: center;
-}
-
-.graph.active {
-    display: block;
-}
-
-.graph-nav {
-    text-align: center;
-}
-
-.right {
-    width: 20%;
-    text-align: center;
-}
-
-.left img {
+/* --- Main Container and Header --- */
+.container {
     width: 100%;
-    height: auto;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    background-color: var(--panel-bg);
+    overflow: hidden;
 }
 
-.graph img {
-    width: 100%;
-    height: 280px;
+h1 {
+    text-align: center;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 2.5em;
+    flex-shrink: 0;
 }
 
-button {
-    margin: 5px;
-    padding: 10px 20px;
-    font-size: 16px;
+/* --- Main Content Layout --- */
+.main-content {
+    display: flex;
+    gap: 20px;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.panel {
+    background-color: var(--panel-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+}
+
+.panel h2 {
+    color: var(--primary-color);
+    margin-bottom: 15px;
+    font-size: 1.5em;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+/* --- Image Panel Styles --- */
+.image-panel {
+    flex: 0 0 320px;
+    min-width: 280px;
+}
+
+.image-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #0a0a0a;
+    border: 1px solid var(--border-color);
+    border-radius: 5px;
+    margin-bottom: 15px;
+    overflow: hidden;
+    min-height: 0;
+}
+
+.image-container img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.button-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.btn {
+    background-color: var(--primary-color);
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
     cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    text-align: center;
+    transition: background-color 0.3s, transform 0.1s;
 }
 
-#probabilityGauge {
+.btn:hover:not(:disabled) {
+    background-color: #0056b3;
+}
+
+.btn:disabled {
+    background-color: var(--secondary-text);
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* --- Results Panel Styles --- */
+.results-panel {
+    flex: 1;
+    min-width: 400px;
+    overflow-y: auto;
+}
+
+.result-section {
+    margin-bottom: 15px;
+    flex-shrink: 0;
+}
+
+/* Model Title */
+.model-title {
+    font-size: 1rem;
+    margin: 0 0 15px 0;
+    color: var(--text-color);
+    font-weight: 600;
+    text-align: center;
+}
+
+.model-title span {
+    color: var(--primary-color);
+}
+
+.metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.metric-item {
+    background-color: #2a2a2a;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.metric-label {
+    display: block;
+    font-size: 0.9em;
+    color: var(--secondary-text);
+    margin-bottom: 5px;
+}
+
+.metric-value {
+    display: block;
+    font-size: 1.2em;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+#prediction {
+    font-size: 1.5em;
+}
+
+.metric-value.positive {
+    color: var(--danger-color);
+}
+
+.metric-value.negative {
+    color: var(--success-color);
+}
+
+/* Comparison Container */
+#comparison-container {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.comparison-model {
+    border: 1px solid var(--border-color);
+    padding: 15px;
+    margin-bottom: 15px;
+    background-color: #2a2a2a;
+    border-radius: 5px;
+}
+
+.comparison-model h4 {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+.comparison-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.comparison-metric {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.9rem;
+}
+
+.comparison-metric .label {
+    font-weight: 600;
+    color: var(--secondary-text);
+}
+
+.comparison-metric .value {
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.results-panel h3 {
+    font-size: 1.2rem;
+    margin: 15px 0 10px 0;
+    color: var(--primary-color);
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.graph-container {
+    flex: 1;
     width: 100%;
-    height: auto;
-    border: 1px solid #000;
+    min-height: 200px;
+    max-height: 350px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #2a2a2a;
+    border-radius: 5px;
+    padding: 15px;
+}
+
+.graph-container canvas {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.graph-label {
+    text-align: center;
+    color: var(--text-color);
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 10px 0;
+    flex-shrink: 0;
+}
+
+.graph-navigation {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+    flex-shrink: 0;
+}
+
+.nav-btn {
+    background: none;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+    padding: 8px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    font-weight: 500;
+}
+
+.nav-btn:hover {
+    background-color: rgba(0, 123, 255, 0.2);
+}
+
+/* --- Gauge Panel Styles --- */
+.gauge-panel {
+    flex: 0 0 320px;
+    min-width: 280px;
+    align-items: center;
+}
+
+.gauge-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border-color);
+    background-color: #2a2a2a;
+    padding: 20px;
+    margin-bottom: 15px;
+    border-radius: 5px;
+    min-height: 0;
+}
+
+#gauge-canvas {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.gauge-description {
+    text-align: center;
+    font-size: 0.9em;
+    color: var(--secondary-text);
+    line-height: 1.6;
+    flex-shrink: 0;
+}
+
+/* --- Loading Overlay --- */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.loading-overlay.active {
+    display: flex;
+}
+
+.spinner {
+    border: 8px solid var(--border-color);
+    border-top: 8px solid var(--primary-color);
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* --- Responsive Adjustments --- */
+@media (max-width: 1200px) {
+    .main-content {
+        flex-direction: column;
+        overflow-y: auto;
+    }
+
+    .panel {
+        flex: 0 0 auto;
+        min-width: 100%;
+    }
+
+    .image-panel, .gauge-panel {
+        flex: 0 0 auto;
+    }
+
+    .results-panel {
+        min-width: 100%;
+    }
+    
+    .container {
+        height: auto;
+        min-height: 100vh;
+    }
 }
